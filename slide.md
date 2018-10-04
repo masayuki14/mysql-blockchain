@@ -156,13 +156,6 @@ Javascript
 
 # ブロックチェーン
 
-ブロックチェーンの基本的な構造
-
-![](blockchain.png){:relative-width='100'}
-
-
-# ブロックチェーン
-
 構成要素
 
 :   - ナンス(乱数)
@@ -170,20 +163,25 @@ Javascript
     - 前のブロックのHash値
 
 
-# 簡易モデル
+# ブロックチェーン
+
+ブロックチェーンの基本的な構造
+
+![](blockchain.png){:relative-width='100'}
 
 
-マイニング
 
-:   - 生成するHash値に制約
-    - ナンスを探すこと
+# マイニングとは
 
-# 簡易モデル
+- ブロックのHash値に制約
+- 制約を満たすナンス(乱数)を探すこと
 
-ex) Hash値は先頭に0が10個ないといけない！
+# マイニングとは
+
+**Hash値の先頭に0を10個連続させる！**
 
 ```
-value = hash( transaction, prev_hash, nonce)
+value = hash( nonce, transaction, prev_hash )
 
 # => 00000000004b2a76b9719d911017c592
 # md5 32桁
@@ -194,13 +192,14 @@ value = hash( transaction, prev_hash, nonce)
 
 # 実行環境
 
-MySQLでブロックチェーンを表現する
+MySQLでブロックチェーンを表現
 
-- ブロック => Record
-- ブロックチェーン => Table
+:   - ブロック -> Record
+    - ブロックチェーン -> Table
+    - Hash関数 -> MD5
+    - Hash制約 -> 先頭に0が4つ連続
 
 # 実行環境
-
 
 ```
 CREATE TABLE `block` (
@@ -213,6 +212,7 @@ CREATE TABLE `block` (
 ) ENGINE=InnoDB
 ```
 {: lang="sql" }
+
 
 
 # 実行環境
@@ -232,32 +232,158 @@ CREATE TABLE `block` (
 {: lang="json" }
 
 
-# 実行環境
+# デモ
 
 ```
-mysql> select * from block \G
-*************************** 1. row ***************************
-         id: 1
-transaction: [
-  {"date": "2018-04-01", "name": "miyake",
-    "report": "今日は良い天気でした。"},
-  {"date": "2018-04-01", "name": "kataoka",
-    "report": "チョコレートが美味しかった。"},
-  {"date": "2018-04-01", "name": "tamamura",
-    "report": "電車が遅れて最悪だった。"}
-]
-      nonce: NULL
-  prev_hash: NULL
-       hash: NULL
+$ mysqlsh -u root -p
 ```
+{: lang="console" }
 
-# 実行環境
 
-マイニングしてみましょう
-:   - Hash関数はMD5
-    - 先頭に0が4つ
-    - Javascript
+# デモ
 
+```
+// テーブル取得
+table = session
+  .getSchema('blockchain')
+  .getTable('block')
+
+// ヘルプが表示される
+table.help()
+// まだデータがないのでEmpty
+table.select()
+
+// オブジェクトでInsertできる
+table.insert({
+  transaction: [{'name': 'morisaki'}],
+  prev_hash: ''}
+)
+
+```
+{: lang="javascript" }
+
+
+# デモ
+
+```
+// INSERTしたデータが参照できる
+table.select()
+
+// where句の指定など
+record = table.select()
+  .where('id = :id')
+  .bind('id', 1)
+  .execute().fetchOne()
+
+```
+{: lang="javascript" }
+
+
+# デモ
+
+```
+// SQLモードに切り替え
+\sql
+
+use blockchain;
+select * From block;
+show create table block;
+```
+{: lang="sql" }
+
+
+# マイニング処理
+
+```
+mining = function (id) {
+
+  schema = session.getSchema('blockchain')
+  table = schema.getTable('block')
+  record = table.select().where('id = :id')
+    .bind('id', id).execute().fetchOne()
+
+  nonce = 0
+  while (true) {
+    nonce++
+    hash = md5(record.transaction + nonce + record.prev_hash)
+    // 条件に一致するHash値になれば終了
+    if (hash.match(/^0000/)) {
+      table.update()
+        .set('hash', hash).set('nonce', nonce)
+        .where('id = :id').bind('id', record.id)
+        .execute()
+      break
+    }
+  }
+}
+```
+{: lang="javascript" }
+
+
+# デモ
+
+
+```
+mining(1)
+
+table.select()
+record = table.select().where('id = 1')
+  .execute().fetchOne()
+record.hash
+record.getField('nonce')
+
+JSON.parse(record.transaction)
+```
+{: lang="javascript" }
+
+
+# デモ
+
+
+```
+id2hash = function (id) {
+  schema = session.getSchema('blockchain')
+  table = schema.getTable('block')
+  record = table.select()
+    .where('id = :id').bind('id', id)
+    .execute().fetchOne()
+  return record.hash
+}
+
+format = function(prevId, transaction) {
+  return {
+    prev_hash: id2hash(prevId),
+    transaction: transaction
+  }
+}
+```
+{: lang="javascript" }
+
+
+# デモ
+
+
+```
+// id => hash 指定IDのHash値を返す
+id2hash(1)
+format(1, [{"name":"mysql"}, {"name":"masayuki", "date":"2018-10-14"}])
+
+table.insert(format(1, [{"name":"yoshida", "date":"2018-10-15"}]))
+mining(2)
+table.insert(format(2, [{"name":"tanaka", "date":"2018-10-16"}]))
+mining(3)
+table.insert(format(3, [{"name":"okamura", "date":"2018-10-17"}]))
+mining(4)
+```
+{: lang="javascript" }
+
+
+# デモ
+
+
+```
+```
+{: lang="javascript" }
 
 
 # 実行環境
