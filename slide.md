@@ -1,97 +1,134 @@
-# MySQL8.0 使いたいからブロックチェーン実装してみた
+# MySQL8.0を使ってブロックチェーンを実装する
+
+subtitle
+:   第9回 関西DB勉強会
 
 author
 :   @masayuki14
 
 theme
-:   blue-bar
+:   clear-blue
 
 
 # 目次
 
 - 自己紹介
 - 概要
-- 簡易モデル
-- 実行環境
-- まとめ
+- 技術要素の解説
+- デモ
+- MySQL8.0の新機能
 
 
 # 自己紹介
 
-- 森崎雅之
+- もりさきまさゆき
 
 - @masayuki14
 
-![](twitter.png){:width='120'}
+![](icons.png){:width='360'}
 
-![](github.png){:width='120'}
 
-![](hatena.png){:width='120'}
-
-Follow me !!
+{:.center}
+**Follow me !!**
 
 
 # 自己紹介
-
-- コミュニティ
-    - はんなりPython
-    - OSS Gate
 
 - 主夫
-    - フリーランス（パート）
-    - スプーキーズアンバサダー
+    - 妻1人 {::note} (フルタイム) {:/note} 幼児2人
+    - フリーランス {::note} (Web系パートタイム) {:/note}
 
-# 自己紹介
+- コミュニティ
+    - はんなりPython {::note} (第3金曜開催@京都) {:/note}
+    - OSS Gate {::note} (11/24 ワークショップ@大阪) {:/note}
 
-スプーキーズアンバサダー
 
-- 勉強会開催
-- 登壇
-- 会社紹介
-
-# スプーキーズ
-
-- Webシステム
-- ソーシャルゲーム
-- ボードゲーム
-
-**クリエイター募集中！！**
+- スプーキーズアンバサダー
 
 # スプーキーズ
 
-遊びに来てください
+- Web系システム
+- ソーシャルゲーム　
+- 中規模DB運用
+    - MySQL, PerconaServer, MariaDB
 
-- [テクテクテック#5](https://spookies.connpass.com/event/88611/) 9/14 (Fri)
-- フリーランスを集めて働き方紹介
-- 四条烏丸下がったあたり
-- 来月引越
+{:.center}
+**Webエンジニア積極採用中！！**
+
+## プロパティ
+
+background-image
+:   spookies_logo.png
+
+background-image-relative-width
+:   50
+
+background-image-align
+:   right
+
+background-image-relative-margin-right
+:   3
+
+{::comment}
+{:/comment}
+
+# スプーキーズ
+
+勉強会を開催しています
+
+- [テクテクテック#6](https://spookies.connpass.com/event/88611/) 
+    - 11/13 (Thu)
+    - テーマ
+
+## プロパティ
+
+background-image
+:   spookies_logo.png
+
+background-image-relative-width
+:   50
+
+background-image-align
+:   right
+
+background-image-relative-margin-right
+:   3
+
+{::comment}
+{:/comment}
 
 # 概要
 
-> MySQLを8.0を使って
-簡略化したブロックチェーンを
-実装した
-
-というはなし
+> MySQL8.0を使って
+> 簡略化したブロックチェーンを
+> 実装した
 
 # 概要
 
-使っているもの
+{::tag name="large"} やったこと {:/tag}
 
-- MySQL 8.0
+- ブロックチェーンをテーブルで表現
+- MySQL Shell スクリプト実装
+    - ブロック追加などのデータ操作
+    - マイニング処理
+
+
+# 技術要素の解説
+
+{::tag name="large"} 使っているもの {:/tag}
+
+- MySQL8.0
 - MySQL Shell
-- Javascript
+- JavaScript
 
-# 概要
+# 技術要素の解説
 
-MySQL 8.0
+MySQL8.0
 :   - ブロックのモデルをテーブルで表現
-    - トランザクションはJSON
-    - HashはMD5で計算
+    - 取引データはJSON
+    - Hash値はMD5で計算
 
-MySQL 8.0 だとJSONをいい感じに扱える
-
-# 概要
+# 技術要素の解説
 
 MySQL Shell
 
@@ -99,33 +136,37 @@ MySQL Shell
     - DBアクセスのインタフェース
     - JavascriptでDBを操作が可能
 
-# 概要
+# 技術要素の解説
 
 Javascript
 
-:   - マイニングプログラム
+:   - テーブル操作
+    - マイニング処理
     - MySQL Shellで実行
 
 
-# 簡易モデル
+# ブロックチェーン
+
+- 分散型ネットワーク
+- 合意形成
+- スマートコントラクト
+
+{:.center}
+**データ構造だけにフォーカス！**
+
+# ブロックチェーン
 
 ブロックチェーンの基本的な構造
 
-```
-出典: https://www.newscrypto.jp/articles/7487
-```
-
-# 簡易モデル
-
-![](blockchain.png){:width='1800'}
+![](blockchain.png){:relative-width='100'}
 
 
-# 簡易モデル
+# ブロックチェーン
 
 構成要素
 
-:   - 取引(トランザクション)
-    - ナンス(乱数)
+:   - ナンス(乱数)
+    - 取引(トランザクション)
     - 前のブロックのHash値
 
 
