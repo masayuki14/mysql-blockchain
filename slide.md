@@ -378,101 +378,62 @@ mining(4)
 {: lang="javascript" }
 
 
-# デモ
+# ファイルの実行
+
+-f, --file=file オプションで実行
+
+```
+$ mysqlsh -u root -p -f batch.js
+```
+{: lang="bash" }
+
+
+# CTE 共通テーブル式
+
+- MySQL8.0でCTEをサポート
+- 再帰的にSELECTが実行できる
+
+
+# CTE 共通テーブル式
 
 
 ```
+with recursive
+blockchain (id, hash, path)  as (
+  select id, hash, cast(id as char(100))
+  from block
+  where id = 1
+union all
+  select b.id, b.hash, concat(bc.path, '->', b.id)
+  from blockchain bc join block b
+  on bc.hash = b.prev_hash
+)
+select * from blockchain;
 ```
-{: lang="javascript" }
+{: lang="sql" }
 
-
-# 実行環境
-
-```
-shell.connect('mysqlx://root@localhost')
-schema = session.getSchema('blockchain')
-table = schema.getTable('block')
-
-target_id = 1
-record = table.select().
-  where('id = :id').bind('id', target_id).
-  execute().fetchOne()
-
-nonce = 0
-while (true) {
-  nonce++
-  hash = md5(record.transaction + nonce + record.prev_hash)
-
-  // 条件に一致するHash値になれば終了
-  if (hash.match(/^0000/)) {
-    table.update().
-      set('hash', hash).
-      set('nonce', nonce).
-      where('id = :id').bind('id', record.id).
-      execute()
-    break
-  }
-}
-```
-{: lang="js" }
-
-
-# 実行環境
-
+# CTE 共通テーブル式
 
 ```
-$ time mysqlsh -f mining.js
-Please provide the password for 'mysqlx://root@localhost': ****
-
-    15326,
-    "0000f14b8733a412a00a17abc1b7d3e7"
-
-0.71user 0.03system 0:03.06elapsed 24%CPU (0avgtext+0avgdata 26956maxresident)k
-240inputs+0outputs (0major+4062minor)pagefaults 0swaps
++------+----------------------------------+------------+
+| id   | hash                             | path       |
++------+----------------------------------+------------+
+|    1 | 00073e18bd64f8ca6a962cb960b65f77 | 1          |
+|    2 | 000eec3e66368ca655715136995d1701 | 2->1       |
+|    3 | 00058c18fc3f5e38ba0319ce27525a22 | 3->2->1    |
+|    4 | 00000015c2b4d2395443e5eb94245794 | 4->3->2->1 |
++------+----------------------------------+------------+
 ```
 
-# 実行環境
+# JSON_TABLE()
 
-制約を変えてハッシュを再計算する
+- MySQL8.0で新規追加
+- JSONを表に変換できる
+- 他のテーブルとJOINできる
 
-```
-$ time mysqlsh -f remining.js
-Please provide the password for 'mysqlx://root@localhost': ****
-{
-    "hash": "00073e18bd64f8ca6a962cb960b65f77",
-    "id": 1,
-    "nonce": 1235
-}
-{
-    "hash": "000223efef2ccb12da07574967292841",
-    "id": 2,
-    "nonce": 704
-}
-{
-    "hash": "00058c18fc3f5e38ba0319ce27525a22",
-    "id": 3,
-    "nonce": 369
-}
-{
-    "hash": "00000015c2b4d2395443e5eb94245794",
-    "id": 4,
-    "nonce": 1931
-}
-0.41user 0.02system 0:02.31elapsed 19%CPU (0avgtext+0avgdata 27624maxresident)k
-0inputs+0outputs (0major+4162minor)pagefaults 0swaps
+# JSON_TABLE()
 
-```
-
-# 実行環境
-
-先頭の0を増やすほど時間がかかる。
-
-*デモ！！*
-
-
-# おまけ
-
-transaction を見やすくする *JSON_TABLE()*
+transaction を見やすくする
 
 ```
 select id, trans.*
@@ -489,63 +450,51 @@ from block, JSON_TABLE(
 {: lang="sql" }
 
 
-# おまけ
+# JSON_TABLE()
 
 ```
-+----+----------+------------+-----------------------------------------------------------------------------+
-| id | name     | date       | report                                                                      |
-+----+----------+------------+-----------------------------------------------------------------------------+
-|  1 | miyake   | 2018-04-01 | 今日は良い天気でした。                                                      |
-|  1 | kataoka  | 2018-04-01 | チョコレートが美味しかった。                                                |
-|  1 | tamamura | 2018-04-01 | 電車が遅れて最悪だった。                                                    |
-|  2 | miyake   | 2018-04-02 | 夕立がありすごい雨でした。                                                  |
-|  2 | kataoka  | 2018-04-02 | ドーナツならチョコレートがかかっていて欲しい。                              |
-|  2 | tamamura | 2018-04-02 | 前を歩くおじさんの傘が刺さりそうで腹がたった。                              |
-|  3 | miyake   | 2018-04-03 | 月が綺麗ですね。                                                            |
-|  3 | kataoka  | 2018-04-03 | 紅茶ならダージリンが好みだ。チョコレートを添えて。                          |
-|  3 | tamamura | 2018-04-03 | 女子高生が歩道に広がって邪魔だった。                                        |
-|  3 | kawai    | 2018-04-03 | ストレッチをしたら気持ちよく寝れました。                                    |
-|  4 | miyake   | 2018-04-04 | セミが鳴いていたので夏を見つけた気分です。                                  |
-|  4 | kataoka  | 2018-04-04 | シフォンケーキにはチョコクリームがとても合う。                              |
-|  4 | tamamura | 2018-04-04 | 電車の中でハンバーガー食うなよ。臭うだろ。                                  |
-|  4 | kawai    | 2018-04-04 | はじめてランニングハイを感じられました。                                    |
-+----+----------+------------+-----------------------------------------------------------------------------+
++----+----------+------------+---------------------------------------------------+
+| id | name     | date       | report                                            |
++----+----------+------------+---------------------------------------------------+
+|  1 | miyake   | 2018-04-01 | 今日は良い天気でした。                            |
+|  1 | kataoka  | 2018-04-01 | チョコレートが美味しかった。                      |
+|  1 | tamamura | 2018-04-01 | 電車が遅れて最悪だった。                          |
+|  2 | miyake   | 2018-04-02 | 夕立がありすごい雨でした。                        |
+|  2 | kataoka  | 2018-04-02 | ドーナツならチョコレートがかかっていて欲しい。    |
+|  2 | tamamura | 2018-04-02 | 前を歩くおじさんの傘が刺さりそうで腹がたった。    |
+|  3 | miyake   | 2018-04-03 | 月が綺麗ですね。                                  |
+|  3 | kataoka  | 2018-04-03 | 紅茶ならダージリンが好みだ。チョコレートを添えて。|
+|  3 | tamamura | 2018-04-03 | 女子高生が歩道に広がって邪魔だった。              |
+|  3 | kawai    | 2018-04-03 | ストレッチをしたら気持ちよく寝れました。          |
+|  4 | miyake   | 2018-04-04 | セミが鳴いていたので夏を見つけた気分です。        |
+|  4 | kataoka  | 2018-04-04 | シフォンケーキにはチョコクリームがとても合う。    |
+|  4 | tamamura | 2018-04-04 | 電車の中でハンバーガー食うなよ。臭うだろ。        |
+|  4 | kawai    | 2018-04-04 | はじめてランニングハイを感じられました。          |
++----+----------+------------+---------------------------------------------------+
 ```
 
-# おまけ
-
-再帰アクセスする *CTE*
+# JSON_TABLE()
 
 ```
-with recursive
-blockchain (id, hash, path)  as (
-  select id, hash, cast(id as char(100))
-  from block2
-  where id = 1
-union all
-  select b.id, b.hash, concat(b.id, '->', bc.path)
-  from blockchain bc join block2 b
-  on bc.hash = b.prev_hash
+with trans (id, name, date, report)
+as (
+  select id, t.*
+  from block, JSON_TABLE(
+    `transaction`,
+    '$[*]'
+    columns (
+      name varchar(32) path '$.name',
+      `date` date path '$.date',
+      report varchar(128) path '$.report'
+    )
+  ) t
 )
-
-select * from blockchain;
+select * from trans join block using(id);
 ```
 
-# おまけ
+# 参考文献
 
-```
-+------+----------------------------------+------------+
-| id   | hash                             | path       |
-+------+----------------------------------+------------+
-|    1 | 00073e18bd64f8ca6a962cb960b65f77 | 1          |
-|    2 | 000eec3e66368ca655715136995d1701 | 2->1       |
-|    3 | 00058c18fc3f5e38ba0319ce27525a22 | 3->2->1    |
-|    4 | 00000015c2b4d2395443e5eb94245794 | 4->3->2->1 |
-+------+----------------------------------+------------+
-```
-
-# まとめ
-
-- ブロックチェーン自体は簡単なモデル
-- ナンスを探すのが大変
-- MySQL8.0 イケてる！
+- 詳解MySQL 5.7 (書籍)
+- MySQL8.0 公式ドキュメント
+- MySQLセッションスライド
+    - https://www.mysql.com/jp/news-and-events/seminar/downloads.html
