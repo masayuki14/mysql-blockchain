@@ -134,11 +134,11 @@ MySQL Shell
 
 :   - MySQLのCLIクライアント
     - DBアクセスのインタフェース
-    - JavascriptでDBを操作が可能
+    - JavaScriptでDBを操作が可能
 
 # 技術要素の解説
 
-Javascript
+JavaScript
 
 :   - テーブル操作
     - マイニング処理
@@ -391,7 +391,7 @@ $ mysqlsh -u root -p -f batch.js
 # CTE 共通テーブル式
 
 - MySQL8.0でCTEをサポート
-- 再帰的にSELECTが実行できる
+- 再帰的にJOINが実行できる
 
 
 # CTE 共通テーブル式
@@ -441,9 +441,9 @@ from block, JSON_TABLE(
   `transaction`,
   '$[*]'
   columns (
-    name varchar(32) path '$.name',
+    `name` varchar(32) path '$.name',
     `date` date path '$.date',
-    report varchar(128) path '$.report'
+    `report` varchar(128) path '$.report'
   )
 ) trans;
 ```
@@ -483,9 +483,9 @@ as (
     `transaction`,
     '$[*]'
     columns (
-      name varchar(32) path '$.name',
+      `name` varchar(32) path '$.name',
       `date` date path '$.date',
-      report varchar(128) path '$.report'
+      `report` varchar(128) path '$.report'
     )
   ) t
 )
