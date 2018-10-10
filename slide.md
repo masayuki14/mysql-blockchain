@@ -9,6 +9,8 @@ author
 theme
 :   clear-blue
 
+allotted-time
+:   1800
 
 # 目次
 
@@ -77,8 +79,8 @@ background-image-relative-margin-right
 勉強会を開催しています
 
 - [テクテクテック#6](https://spookies.connpass.com/event/88611/) 
-    - 11/13 (Thu)
-    - テーマ
+    - 11/14 (水曜日)
+    - picoCTF 初参加したので解説会
 
 ## プロパティ
 
@@ -491,6 +493,8 @@ as (
 )
 select * from trans join block using(id);
 ```
+{: lang="sql" }
+`
 
 # 参考文献
 
