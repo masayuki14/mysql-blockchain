@@ -10,7 +10,7 @@ theme
 :   clear-blue
 
 allotted-time
-:   1800
+:   30m
 
 # 目次
 
@@ -19,6 +19,11 @@ allotted-time
 - 技術要素の解説
 - デモ
 - MySQL8.0の新機能
+
+# 目次
+
+{:.center}
+{::tag name="x-large"}自己紹介{:/tag}
 
 
 # 自己紹介
@@ -47,7 +52,7 @@ allotted-time
 
 - スプーキーズアンバサダー
 
-# スプーキーズ
+# スプーキーズ@京都
 
 - Web系システム
 - ソーシャルゲーム　
@@ -63,7 +68,7 @@ background-image
 :   spookies_logo.png
 
 background-image-relative-width
-:   50
+:   30
 
 background-image-align
 :   right
@@ -74,13 +79,15 @@ background-image-relative-margin-right
 {::comment}
 {:/comment}
 
-# スプーキーズ
 
-勉強会を開催しています
+# スプーキーズ@京都
 
-- [テクテクテック#6](https://spookies.connpass.com/event/88611/) 
-    - 11/14 (水曜日)
-    - picoCTF 初参加したので解説会
+勉強会 [テクテクテック](https://goo.gl/hXXafu)
+
+- picoCTF2018 問題の解説会
+    - 2018/11/14 (水)
+- DB勉強会 運営でのあれこれ
+    - 2019/01/16 (水)
 
 ## プロパティ
 
@@ -88,7 +95,7 @@ background-image
 :   spookies_logo.png
 
 background-image-relative-width
-:   50
+:   30
 
 background-image-align
 :   right
@@ -98,6 +105,11 @@ background-image-relative-margin-right
 
 {::comment}
 {:/comment}
+
+# 目次
+
+{:.center}
+{::tag name="x-large"}概要{:/tag}
 
 # 概要
 
@@ -115,6 +127,11 @@ background-image-relative-margin-right
     - マイニング処理
 
 
+# 目次
+
+{:.center}
+{::tag name="x-large"}技術要素の解説{:/tag}
+
 # 技術要素の解説
 
 {::tag name="large"} 使っているもの {:/tag}
@@ -128,7 +145,6 @@ background-image-relative-margin-right
 MySQL8.0
 :   - ブロックのモデルをテーブルで表現
     - 取引データはJSON
-    - Hash値はMD5で計算
 
 # 技術要素の解説
 
@@ -158,19 +174,19 @@ JavaScript
 
 # ブロックチェーン
 
+ブロックチェーンの基本的な構造
+
+![](blockchain.png){:relative-width='100'}
+
+
+
+# ブロックチェーン
+
 構成要素
 
 :   - ナンス(乱数)
     - 取引(トランザクション)
     - 前のブロックのHash値
-
-
-# ブロックチェーン
-
-ブロックチェーンの基本的な構造
-
-![](blockchain.png){:relative-width='100'}
-
 
 
 # マイニングとは
@@ -180,7 +196,7 @@ JavaScript
 
 # マイニングとは
 
-**Hash値の先頭に0を10個連続させる！**
+**Hash値の先頭に0を10個連続させる**
 
 ```
 value = hash( nonce, transaction, prev_hash )
@@ -189,8 +205,7 @@ value = hash( nonce, transaction, prev_hash )
 # md5 32桁
 ```
 
-*nonce* を探せ！
-
+*ナンス* を探せ！
 
 # 実行環境
 
@@ -233,6 +248,10 @@ CREATE TABLE `block` (
 ```
 {: lang="json" }
 
+# 目次
+
+{:.center}
+{::tag name="x-large"}デモ{:/tag}
 
 # デモ
 
@@ -306,7 +325,6 @@ mining = function (id) {
 
   nonce = 0
   while (true) {
-    nonce++
     hash = md5(record.transaction + nonce + record.prev_hash)
     // 条件に一致するHash値になれば終了
     if (hash.match(/^0000/)) {
@@ -316,6 +334,7 @@ mining = function (id) {
         .execute()
       break
     }
+    nonce++
   }
 }
 ```
@@ -494,7 +513,7 @@ as (
 select * from trans join block using(id);
 ```
 {: lang="sql" }
-`
+
 
 # 参考文献
 
