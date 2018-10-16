@@ -516,6 +516,14 @@ select * from trans join block using(id);
 {: lang="sql" }
 
 
+# まとめ
+
+- MySQLShellでDBプログラミング
+    - JavaScript
+- MySQL8.0新機能が便利
+    - CTE
+    - JSON_TABLE()
+
 # 参考文献
 
 - MySQL8.0 公式ドキュメント
