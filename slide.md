@@ -530,3 +530,127 @@ select * from trans join block using(id);
 - MySQLセッションスライド
     - https://www.mysql.com/jp/news-and-events/seminar/downloads.html
 - 詳解MySQL 5.7 (書籍)
+
+
+# Appendix python
+
+```
+table = session \
+        .get_schema('blockchain') \
+        .get_table('block')
+
+# ヘルプが表示される
+table.help()
+# まだデータがないのでEmpty
+table.select()
+
+# DictionaryでInsertできる
+table.insert({
+  'transaction': [{'name': 'morisaki'}],
+  'prev_hash': ''}
+)
+
+```
+{: lang="python" }
+
+
+# Appendix python
+
+```
+# INSERTしたデータが参照できる
+table.select()
+
+# where句の指定など
+record = table.select() \
+    .where('id = :id') \
+    .bind('id', 1) \
+    .execute() \
+    .fetch_one()
+
+```
+{: lang="python" }
+
+
+# Appendix python
+
+```
+def mining(id):
+    table = session.get_schema('blockchain').get_table('block')
+    r = table.select().where('id = :id').bind('id', id) \
+             .execute().fetch_one()
+    # 10桁の整数を発生させてUpdateしMD5を計算
+    nonce = 0
+    while True:
+        hash_value = md5(r.transaction + str(nonce) + r.prev_hash)
+        # 条件に一致するHash値になれば終了
+        if (re.compile(r"/^0000/").match(hash_value)):
+            table.update() \
+                 .set('hash', hash_value).set('nonce', nonce) \
+                 .where('id = :id').bind('id', r.id) \
+                 .execute()
+            print({'nonce': nonce, 'hash': hash_value})
+            break
+        nonce = nonce+1
+```
+{: lang="python" }
+
+
+# Appendix python
+
+```
+mining(1)
+
+table.select()
+record = table.select() \
+    .where('id = 1') \
+    .execute().fetchOne()
+
+record.hash
+record.get_field('nonce')
+
+# JSONをパース
+import json
+json.loads(record.transaction)
+
+```
+{: lang="python" }
+
+
+# Appendix python
+
+```
+def id2hash(id):
+    table = session.get_schema('blockchain') \
+                   .get_table('block')
+    record = table.select() \
+                  .where('id = :id') \
+                  .bind('id', id) \
+                  .execute().fetch_one()
+    return record.hash
+
+def format(prev_id, transaction):
+    return {
+            'prev_hash': id2hash(prev_id),
+            'transaction': transaction
+    }
+```
+{: lang="python" }
+
+
+# Appendix python
+
+```
+# id => hash 指定IDのHash値を返す
+id2hash(1)
+format(1, [{"name":"mysql"}, {"name":"masayuki", "date":"2018-10-14"}])
+
+table.insert(format(1, [{"name":"yoshida", "date":"2018-10-15"}]))
+mining(2)
+table.insert(format(2, [{"name":"tanaka", "date":"2018-10-16"}]))
+mining(3)
+table.insert(format(3, [{"name":"okamura", "date":"2018-10-17"}]))
+mining(4)
+
+```
+{: lang="python" }
+
